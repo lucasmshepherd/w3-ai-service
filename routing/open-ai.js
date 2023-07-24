@@ -23,14 +23,14 @@ export default async function (EXPRESS) {
                 model: "gpt-3.5-turbo",
                 messages: [{role: "user", content: text}],
               });
-    
+
               const CHAT_RESPONSE = chatCompletion?.data?.choices[0]?.message?.content;
-    
+
               if (CHAT_RESPONSE) {
                 await Axios.post(`${TG_BOT_API_URL}${TG_BOT_API_TOKEN}/sendMessage`, {
                   chat_id: chatId,
                   text: CHAT_RESPONSE,
-                }).then((response) => { 
+                }).then((response) => {
                   res.status(200).send(response);
                 }).catch((error) => {
                   res.send(error);
@@ -62,9 +62,9 @@ export default async function (EXPRESS) {
         } else {
           res.status(200).send(`Not a command`)
         }
-        
+
       } else {
-        res.status(400).send(`Please ensure the request body has a text in the 'text' property and that it's a string.`)
+        res.status(200).send(`Please ensure the request body has a text in the 'text' property and that it's a string.`)
       }
     } catch (error) {
       // This is likely coding/logic error that was unexpected

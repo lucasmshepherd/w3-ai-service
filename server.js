@@ -12,6 +12,7 @@ SetupMiddleware(EXPRESS);
 // Setup Routes
 SetupRouting(EXPRESS);
 
+// Setup Discord Bot Handler
 setupDiscordBot();
 
 // Listener
