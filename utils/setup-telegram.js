@@ -1,5 +1,6 @@
 import OpenAi from "../services/open-ai.js";
 import TelegramBotClient from "../services/telegram.js";
+import { makeResponse } from "./text-util.js";
 
 export const setupTelegramBot = () => {
 	TelegramBotClient.onText(/\/ask/, async (msg, match) => {
@@ -9,7 +10,7 @@ export const setupTelegramBot = () => {
 		const chatId = msg.chat.id;
 		const text = match.input.split(' ').slice(1).join(' ') || 'hi';
 
-		let response = '';
+		let response = 'We received your question, but were unable to complete your request unfortunately.';
 
 		try {
 			const chatCompletion = await OpenAi.createChatCompletion({
@@ -41,7 +42,7 @@ export const setupTelegramBot = () => {
 
 		TelegramBotClient.sendMessage(
 			chatId,
-			response,
+			makeResponse(response, 4096),
 			{
 				reply_markup: {
 					inline_keyboard: [[
