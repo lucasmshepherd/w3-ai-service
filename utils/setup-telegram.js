@@ -14,7 +14,7 @@ export const setupTelegramBot = () => {
 			{role: "user", content: text},
 		];
 
-		let response = 'We received your question, but were unable to complete your request unfortunately.';
+		let response = '';
 
 		for (let finish_reason = 'length'; finish_reason === 'length';) {
 			try {
@@ -28,7 +28,7 @@ export const setupTelegramBot = () => {
 				});
 
 				const choice = chatCompletion?.data?.choices[0];
-				response = choice?.message?.content || '';
+				response = response + (choice?.message?.content || '');
 				finish_reason = choice?.finish_reason;
 			} catch (error) {
 				if (error?.response?.status) {
@@ -42,6 +42,9 @@ export const setupTelegramBot = () => {
 							// If this occurs, you've likely exceeded your limt/quota and need to the status of the API key
 							response = `[Error Code 02]: We received your question, but were unable to complete your request unfortunately.`;
 							break;
+
+						default:
+							response = 'We received your question, but were unable to complete your request unfortunately.';
 					}
 				} else {
 					console.log(error.response.status, error.response.data);
@@ -50,20 +53,20 @@ export const setupTelegramBot = () => {
 				}
 			}
 
-			// split response into chunks (4096 characters)
-			const chunks = makeResponse(response);
-
-			for (const chunk of chunks) {
-				await TelegramBotClient.sendMessage(
-					chatId,
-					chunk,
-				);
-			}
-
 			if (finish_reason === 'length') {
 				messages.push({ role: 'assistant', content: response.slice(-200) });
 				messages.push({ role: 'user', content: 'Please continue' });
 			}
+		}
+
+		// split response into chunks (4096 characters)
+		const chunks = makeResponse(response);
+
+		for (const chunk of chunks) {
+			await TelegramBotClient.sendMessage(
+				chatId,
+				chunk,
+			);
 		}
 
 		// TelegramBotClient.sendMessage(
