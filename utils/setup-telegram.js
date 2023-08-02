@@ -16,6 +16,13 @@ export const setupTelegramBot = () => {
 
 		let response = '';
 
+		setTimeout(() => {
+			TelegramBotClient.sendMessage(
+				chatId,
+				'Oh, it is taking longer than usual 🤕️️️️️️. I will be responding shortly.',
+			);
+		}, 1000 * 10);
+
 		for (let finish_reason = 'length'; finish_reason === 'length';) {
 			try {
 				// bot typing indicator
@@ -56,11 +63,6 @@ export const setupTelegramBot = () => {
 			if (finish_reason === 'length') {
 				messages.push({ role: 'assistant', content: response.slice(-200) });
 				messages.push({ role: 'user', content: 'Please continue' });
-
-				TelegramBotClient.sendMessage(
-					chatId,
-					'Oh, it is taking longer than usual 🤕️️️️️️',
-				);
 			}
 		}
 
