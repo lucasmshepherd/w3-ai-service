@@ -56,6 +56,11 @@ export const setupTelegramBot = () => {
 			if (finish_reason === 'length') {
 				messages.push({ role: 'assistant', content: response.slice(-200) });
 				messages.push({ role: 'user', content: 'Please continue' });
+
+				TelegramBotClient.sendMessage(
+					chatId,
+					'Oh, it is taking longer than usual 🤕️️️️️️',
+				);
 			}
 		}
 
