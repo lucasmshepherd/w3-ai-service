@@ -18,6 +18,10 @@ export const setupTelegramBot = () => {
 
 		for (let finish_reason = 'length'; finish_reason === 'length';) {
 			try {
+				// bot typing indicator
+				TelegramBotClient.sendChatAction(chatId, 'typing');
+
+				// call openai
 				const chatCompletion = await OpenAi.createChatCompletion({
 					model: "gpt-3.5-turbo",
 					messages,
@@ -46,6 +50,7 @@ export const setupTelegramBot = () => {
 				}
 			}
 
+			// split response into chunks (4096 characters)
 			const chunks = makeResponse(response);
 
 			for (const chunk of chunks) {
