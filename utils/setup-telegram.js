@@ -10,50 +10,71 @@ export const setupTelegramBot = () => {
 		const chatId = msg.chat.id;
 		const text = match.input.split(' ').slice(1).join(' ') || 'hi';
 
+		const messages = [
+			{role: "user", content: text},
+		];
+
 		let response = 'We received your question, but were unable to complete your request unfortunately.';
 
-		try {
-			const chatCompletion = await OpenAi.createChatCompletion({
-				model: "gpt-3.5-turbo",
-				messages: [{role: "user", content: text}],
-			});
+		for (let finish_reason = 'length'; finish_reason === 'length';) {
+			try {
+				const chatCompletion = await OpenAi.createChatCompletion({
+					model: "gpt-3.5-turbo",
+					messages,
+				});
 
-			response = chatCompletion?.data?.choices[0]?.message?.content;
-		} catch (error) {
-			if (error?.response?.status) {
-				switch(error.response.status) {
-					case 401:
-						console.log(error.response.status, error.response.data);
-						// If this occurs, check the .env file for a valid API key.
-						response = `[Error Code 01]: We received your question, but were unable to complete your request unfortunately.`;
-						break;
-					case 429:
-						console.log(error.response.status, error.response.data);
-						// If this occurs, you've likely exceeded your limt/quota and need to the status of the API key
-						response = `[Error Code 02]: We received your question, but were unable to complete your request unfortunately.`;
-						break;
+				const choice = chatCompletion?.data?.choices[0];
+				response = choice?.message?.content || '';
+				finish_reason = choice?.finish_reason;
+			} catch (error) {
+				if (error?.response?.status) {
+					console.log(error.response.status, error.response.data);
+					switch(error.response.status) {
+						case 401:
+							// If this occurs, check the .env file for a valid API key.
+							response = `[Error Code 01]: We received your question, but were unable to complete your request unfortunately.`;
+							break;
+						case 429:
+							// If this occurs, you've likely exceeded your limt/quota and need to the status of the API key
+							response = `[Error Code 02]: We received your question, but were unable to complete your request unfortunately.`;
+							break;
+					}
+				} else {
+					console.log(error.response.status, error.response.data);
+					// Some other issue happened with the Open AI service that hasn't been accounted for.
+					response = `[Error Code 99]: We received your question, but were unable to complete your request unfortunately.`;
 				}
-			} else {
-				console.log(error.response.status, error.response.data);
-				// Some other issue happened with the Open AI service that hasn't been accounted for.
-				response = `[Error Code 99]: We received your question, but were unable to complete your request unfortunately.`;
+			}
+
+			const chunks = makeResponse(response);
+
+			for (const chunk of chunks) {
+				await TelegramBotClient.sendMessage(
+					chatId,
+					chunk,
+				);
+			}
+
+			if (finish_reason === 'length') {
+				messages.push({ role: 'assistant', content: response.slice(-200) });
+				messages.push({ role: 'user', content: 'Please continue' });
 			}
 		}
 
-		TelegramBotClient.sendMessage(
-			chatId,
-			makeResponse(response, 4096),
-			{
-				reply_markup: {
-					inline_keyboard: [[
-						{
-							text: 'Open App',
-							url: `https://rewardz.network?username=${msg.from.username}`,
-						}
-					]]
-				}
-			}
-		);
+		// TelegramBotClient.sendMessage(
+		// 	chatId,
+		// 	' ',
+		// 	{
+		// 		reply_markup: {
+		// 			inline_keyboard: [[
+		// 				{
+		// 					text: 'Open App',
+		// 					url: `https://rewardz.network?username=${msg.from.username}`,
+		// 				}
+		// 			]]
+		// 		}
+		// 	}
+		// );
 	});
 
 	// Listener (handler) for callback data from /label command
