@@ -16,7 +16,7 @@ export const setupTelegramBot = () => {
 
 		let response = '';
 
-		setTimeout(() => {
+		const timeout = setTimeout(() => {
 			TelegramBotClient.sendMessage(
 				chatId,
 				'Oh, it is taking longer than usual 🤕️️️️️️. I will be responding shortly.',
@@ -68,6 +68,8 @@ export const setupTelegramBot = () => {
 
 		// split response into chunks (4096 characters)
 		const chunks = makeResponse(response);
+
+		clearTimeout(timeout);
 
 		for (const chunk of chunks) {
 			await TelegramBotClient.sendMessage(
