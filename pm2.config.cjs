@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'rayn-ai-service',
+      name: 'w3-ai-service',
       node_args: '-r dotenv/config',
       script: './server.js'
     }
