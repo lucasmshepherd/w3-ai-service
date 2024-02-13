@@ -9,7 +9,7 @@ export default async function (EXPRESS) {
         // Usage Example
         try {
           const chatCompletion = await OpenAi.createChatCompletion({
-            model: "gpt-3.5-turbo",
+            model: "gpt-4",
             messages: [{role: "user", content: Question}],
           });
 
@@ -26,18 +26,18 @@ export default async function (EXPRESS) {
               case 401:
                 console.log(error.response.status, error.response.data);
                 // If this occurs, check the .env file for a valid API key.
-                res.status(500).send(`[Error Code 01]: We received your question, but were unable to complete your request unfortunately.`);
+                res.status(500).send(`[Error Code 01]: We received your question, but were unable to complete your request.`);
                 break;
               case 429:
                 console.log(error.response.status, error.response.data);
                 // If this occurs, you've likely exceeded your limt/quota and need to the status of the API key
-                res.status(500).send(`[Error Code 02]: We received your question, but were unable to complete your request unfortunately.`);
+                res.status(500).send(`[Error Code 02]: We received your question, but were unable to complete your request.`);
                 break;
             }
           } else {
             console.log(error.response.status, error.response.data);
             // Some other issue happened with the Open AI service that hasn't been accounted for.
-            res.status(500).send(`[Error Code 99]: We received your question, but were unable to complete your request unfortunately.`);
+            res.status(500).send(`[Error Code 99]: We received your question, but were unable to complete your request.`);
           }
         }
       } else {
