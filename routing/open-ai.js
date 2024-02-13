@@ -9,7 +9,7 @@ export default async function (EXPRESS) {
         // Usage Example
         try {
           const chatCompletion = await OpenAi.createChatCompletion({
-            model: "gpt-4",
+            model: "gpt-3.5-turbo",
             messages: [{role: "user", content: Question}],
           });
 
