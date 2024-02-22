@@ -3,7 +3,7 @@ import OpenAi from '../services/open-ai.js';
 export default async function (EXPRESS) {
   // Get featured items (categories and products)
   EXPRESS.post('/openai/ask', async (req, res) => {
-    console.log(req);
+    console.log(req.body);
     const Question = req.body?.question;
     try {
       if (Question && typeof Question === 'string') {
